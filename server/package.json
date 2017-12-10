@@ -1,0 +1,15 @@
+{
+  "name": "pim-server",
+  "version": "0.0.1",
+  "description": "Server for the PIM protocol",
+  "main": "main.js",
+  "keywords": [
+    "node",
+    "chat",
+    "p2p"
+  ],
+  "dependencies": {
+    "websocket": "1.0.x",
+    "node-forge": "0.7.x"
+  }
+}
