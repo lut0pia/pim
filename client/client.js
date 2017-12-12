@@ -284,7 +284,7 @@ window.addEventListener('load',function() {
     
     try {
         pim_account = JSON.parse(localStorage.pim_account);
-        pim_private_key = forge.pki.privateKeyFromPem(pim_account.privateKeyPem);
+        pim_private_key = forge.pki.privateKeyFromPem(pim_account.private_Pem);
     } catch(e) {
         pim_create_account();
     }
