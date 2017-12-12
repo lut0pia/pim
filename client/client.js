@@ -291,6 +291,16 @@ window.addEventListener('load',function() {
     
     document.getElementById('my_public_key').value = pim_account.public_pem;
     document.getElementById('my_name').value = pim_account.shared.name || 'Unknown';
+    var known_peers_el = document.getElementById('known_peers');
+    for(var public_pem in pim_account.peers) {
+        var known_peer_el = document.createElement('input');
+        known_peer_el.type = 'button';
+        known_peer_el.value = pim_account.peers[public_pem].name || '...';
+        known_peer_el.onclick = function() {
+            pim_connect_to(public_pem);
+        };
+        known_peers_el.appendChild(known_peer_el);
+    }
 
     document.getElementById('connect_button').addEventListener('click',function() {
         var input_el = document.getElementById('public_key_field');
