@@ -33,7 +33,7 @@ function pim_add_server(url) {
 
         switch(msg.type) {
             case 'prove-auth': // Server has sent us an encrypted message we have to decypher to prove our identity
-                var decrypted = pim_private_key.decrypt(msg.encrypted);
+                var decrypted = pim_private_key.decrypt(msg.encrypted,'RSAES-PKCS1-V1_5');
                 if(decrypted.substr(0,13)=='----PROOF----') { // Check header so we don't accidentally decipher anything for a server
                     ws.sendObject({type:'auth-proof',decrypted:decrypted});
                     pim_log('Sending proof to server: '+url);

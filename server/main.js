@@ -30,7 +30,7 @@ wsServer.on('request', function(request) {
                 var public_key = forge.pki.publicKeyFromPem(msg.public_pem);
                 connection.public_pem = msg.public_pem;
                 connection.secret = '----PROOF----'+Math.random();
-                connection.sendObject({type:'prove-auth',encrypted:public_key.encrypt(connection.secret)});
+                connection.sendObject({type:'prove-auth',encrypted:public_key.encrypt(connection.secret,'RSAES-PKCS1-V1_5')});
                 console.log('Auth request: '+connection.remoteAddress);
                 break;
             case 'auth-proof': // Client sent back proof of authentification
