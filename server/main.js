@@ -29,7 +29,7 @@ wsServer.on('request', function(request) {
             case 'auth': // Client is trying to authenticate, ask for proof of identity
                 var public_key = forge.pki.publicKeyFromPem(msg.public_pem);
                 connection.public_pem = msg.public_pem;
-                connection.secret = '----PROOF----'+Math.random();
+                connection.secret = '----PROOF----'+forge.util.bytesToHex(forge.random.getBytesSync(16));
                 connection.sendObject({type:'prove-auth',encrypted:public_key.encrypt(connection.secret,'RSAES-PKCS1-V1_5')});
                 console.log('Auth request: '+connection.remoteAddress);
                 break;
