@@ -2,7 +2,8 @@ var rsa = forge.pki.rsa;
 
 WebSocket.prototype.sendObject = function(obj) { this.send(JSON.stringify(obj)); }
 
-var pim_log = console.log;
+var pim_start_time = Date.now();
+var pim_log = function(str){console.log((Date.now()-pim_start_time)/1000+':\t'+str)}
 var pim_servers = {}; // Connections with servers
 var pim_connections = {}; // Connections with peers
 var pim_account = {
