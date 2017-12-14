@@ -155,6 +155,7 @@ function pim_connect_to(public_pem) {
     var connection = pim_create_connection(public_pem,true);
     pim_log('Attempting connection with other user');
     connection.onnegotiationneeded = function() {
+        pim_log('Creating offer');
         connection.createOffer().then(function(offer) {
             pim_log('Local offer created');
             return connection.setLocalDescription(offer);
@@ -162,7 +163,7 @@ function pim_connect_to(public_pem) {
             pim_log('Sending offer');
             var desc = connection.localDescription;
             pim_send_peer_msg({type:'connect-from',to:public_pem,desc:desc});
-        });
+        }).catch(pim_log);
     };
 }
 function pim_connect_from(public_pem,remoteDesc) {
