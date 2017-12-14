@@ -260,7 +260,7 @@ function pim_share_info() {
 function pim_recv_shared(public_pem,shared) {
     pim_account.peers[public_pem] = shared;
     var connection = pim_connections[public_pem];
-    connection.name_el.innerHTML = shared.name;
+    connection.name_el.innerHTML = pim_html_entities(shared.name);
 }
 
 // Utilities
