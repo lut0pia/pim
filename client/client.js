@@ -308,11 +308,19 @@ window.addEventListener('load',function() {
         var public_pem = input_el.value;
         input_el.value = '';
         public_pem = pim_normalize_public_key_pem(public_pem);
-        if(public_pem && public_pem!=pim_account.public_pem) {
-            if(!pim_connections[public_pem]) {
-                pim_connect_to(public_pem);
-            }
+        if(!public_pem) {
+            pim_log('Not a public key');
+            return;
         }
+        if(public_pem!=pim_account.public_pem) {
+            pim_log('You cannot connect with yourself');
+            return;
+        }
+        if((pim_connections[public_pem])) {
+            pim_log('You are already connected to that user');
+            return;
+        }
+        pim_connect_to(public_pem);
     });
     document.getElementById('my_name').addEventListener('keyup',function() {
         pim_account.shared.name = this.value;
