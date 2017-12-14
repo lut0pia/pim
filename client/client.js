@@ -313,7 +313,7 @@ window.addEventListener('load',function() {
             pim_log('Not a public key');
             return;
         }
-        if(public_pem!=pim_account.public_pem) {
+        if(public_pem==pim_account.public_pem) {
             pim_log('You cannot connect with yourself');
             return;
         }
