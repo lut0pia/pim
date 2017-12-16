@@ -11,6 +11,7 @@ var pim_account = {
     peers:{} // This contains what peers have shared
 };
 var pim_recvd_peer_msgs = {}; // Hashes of messages received (through servers)
+var pim_rtc_conf = {iceServers:[]};
 var pim_private_key;
 
 function pim_add_server(url) {
@@ -112,7 +113,7 @@ function pim_auth() {
     }
 }
 function pim_create_connection(public_pem) {
-    var conn = new RTCPeerConnection(null);
+    var conn = new RTCPeerConnection(pim_rtc_conf);
     conn.oniceconnectionstatechange = function() {
         if(conn.iceConnectionState=='disconnected') {
             pim_log('Disconnected from peer');
@@ -124,7 +125,7 @@ function pim_create_connection(public_pem) {
     }
     conn.onicecandidate = function(e) {
         if(e.candidate) {
-            pim_log('Sending ICE candidate');
+            pim_log('Sending ICE candidate: '+e.candidate.candidate);
             pim_send_peer_msg({type:'ice-candidate',to:public_pem,candidate:e.candidate});
         }
     };
@@ -187,7 +188,7 @@ function pim_connect_from(public_pem,remoteDesc) {
 }
 function pim_ice_candidate(public_pem,candidate) {
     if(pim_connections[public_pem]) {
-        pim_log('Received ICE candidate');
+        pim_log('Received ICE candidate: '+candidate.candidate);
         var connection = pim_connections[public_pem]
         connection.addIceCandidate(new RTCIceCandidate(candidate));
     } else {
@@ -283,6 +284,7 @@ function pim_sha1(text) {
 window.addEventListener('load',function() {
     pim_add_server('ws://127.0.0.1:18765'); // For debugging purposes
     pim_add_server('ws://pim.luciencatonnet.com:18765');
+    pim_rtc_conf.iceServers.push({url:'stun:pim.luciencatonnet.com'});
     
     try {
         pim_account = JSON.parse(localStorage.pim_account);
