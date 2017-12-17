@@ -3,6 +3,9 @@ conversation {
     margin: 5px;
     border: black 1px solid;
 }
+conversation:not(.ready) {
+    opacity: 0.5;
+}
 conversation name {
     display: block;
     width: 100%;
@@ -11,6 +14,9 @@ conversation name {
 }
 conversation input {
     width: 100%;
+}
+conversation:not(.ready) input {
+    visibility: hidden;
 }
 
 messages {
