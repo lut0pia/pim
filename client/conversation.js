@@ -3,7 +3,7 @@ function Conversation(public_pem) {
     this.public_pem = pim_normalize_public_pem(public_pem);
     this.connection = pim_connection(this.public_pem);
     this.connection.handlers.chat = function(conn,msg) {
-        conv.message(msg.text,true);
+        conv.onmessage(msg.text,true);
     }
     this.update_interval = setInterval(function() {
         conv.conversation_el.classList.toggle('ready',conv.connection.state=='ready');
@@ -22,7 +22,7 @@ function Conversation(public_pem) {
             if(text=='') return; // Don't send empty messages
             input_el.value = '';
             conv.connection.send({type:'chat',text:text});
-            conv.message(text,false);
+            conv.onmessage(text,false);
         }
     });
     conversation_el.appendChild(name_el);
@@ -40,19 +40,25 @@ function Conversation(public_pem) {
 
     // Fetch chat history with this peer
     pim_peer_history(this.public_pem).slice(-10).forEach(function(msg) {
-        conv.message(msg.text,msg.incoming);
+        conv.add_message(msg);
     });
 }
 Conversation.prototype.shared_update = function(shared) {
     this.name_el.innerHTML = pim_html_entities(shared.name || 'Unknown');
 }
-Conversation.prototype.message = function(text,incoming) {
-    pim_peer_history(this.public_pem).push({
-        text:text,incoming:incoming
-    });
+Conversation.prototype.onmessage = function(text,incoming) {
+    var msg = {
+        text:text,incoming:incoming,time:Date.now()
+    };
+    this.add_message(msg);
+    pim_peer_history(this.public_pem).push(msg);
+}
+Conversation.prototype.add_message = function(msg) {
+    // TODO: display time too
     var message_el = document.createElement('message');
-    message_el.innerHTML = pim_html_entities(text);
-    message_el.className = incoming?'from':'to';
+    message_el.innerHTML = pim_html_entities(msg.text);
+    message_el.className = msg.incoming?'from':'to';
+    message_el.title = new Date(msg.time).toLocaleString()
     // TODO: handle urls, images, videos, emojis
     this.messages_el.appendChild(message_el);
     this.messages_el.scrollBy(0,128); // Fucks up with loadable content sometimes

@@ -44,7 +44,7 @@ Connection.prototype.handlers.shared = function(conn,msg) {
 }
 Connection.prototype.handlers.chat = function(conn,msg) {
     var conv = pim_start_conversation(conn.public_pem);
-    conv.message(msg.text,true);
+    conv.onmessage(msg.text,true);
 }
 
 // Utilities
