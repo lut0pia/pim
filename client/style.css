@@ -8,9 +8,10 @@ conversation:not(.ready) {
 }
 conversation name {
     display: block;
-    width: 100%;
+    width: 400px;
     text-align: center;
     font-weight: bold;
+    overflow: hidden;
 }
 conversation input {
     width: 100%;
