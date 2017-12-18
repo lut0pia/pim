@@ -1,3 +1,19 @@
+connection {
+    display: inline-block;
+    padding: 2px;
+    margin: 2px;
+    background-color: lightgray;
+}
+connection[state="ready"] {
+    background-color: lightgreen;
+}
+connection[type="peer"]::before {
+    content: "\01F636";
+}
+connection[type="server"]::before {
+    content: "\01F4BB";
+}
+
 conversation {
     float: left;
     margin: 5px;

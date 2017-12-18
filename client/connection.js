@@ -14,6 +14,10 @@ function Connection(id) {
     this.connect();
     this.retry_count = 0;
     this.retry_iterator = 0;
+
+    // Create UI element
+    document.getElementById('connections')
+    .appendChild(this.connection_el = document.createElement('connection'));
 }
 Connection.prototype.connect = function() {
     this.state = 'waiting';
@@ -82,6 +86,16 @@ Connection.prototype.reset_rtc = function() {
         this.conn.state = 'ready';
         pim_share_info(); // TODO: this probably shouldn't be here
     }
+}
+Connection.prototype.friendly_name = function() {
+    switch(this.type) {
+        case 'server': return this.url;
+        case 'peer':
+            try {
+                return pim_account.peers[this.public_pem].shared.name;
+            } catch(e) {}
+    }
+    return '';
 }
 Connection.prototype.send = function(obj) {
     if(this.state=='ready') {
@@ -232,5 +246,8 @@ setInterval(function() {
             conn.retry_count = 0;
             conn.retry_iterator = 0;
         }
+        conn.connection_el.setAttribute('type',conn.type);
+        conn.connection_el.setAttribute('state',conn.state);
+        conn.connection_el.innerText = conn.friendly_name();
     }
 },2000);
