@@ -19,31 +19,8 @@ Connection.prototype.connect = function() {
     this.state = 'waiting';
     switch(this.type) {
         case 'peer':
-            var rtc = this.rtc = new RTCPeerConnection(pim_rtc_conf);
-            this.rtc_send = this.rtc.createDataChannel('data');
-            this.rtc.conn = this;
-            this.rtc.oniceconnectionstatechange = function() {
-                if(this.iceConnectionState=='disconnected') {
-                    this.conn.state = 'disconnected';
-                    pim_log('Disconnected from peer');
-                }
-            }
-            this.rtc.onicecandidate = function(e) {
-                if(e.candidate) {
-                    pim_log('Sending ICE candidate: '+e.candidate.candidate);
-                    pim_send_peer_msg({type:'ice-candidate',to:this.conn.public_pem,candidate:e.candidate});
-                }
-            }
-            this.rtc.ondatachannel = function(e) {
-                pim_log("Connection success!");
-                this.conn.rtc_recv = e.channel;
-                this.conn.rtc_recv.conn = this.conn;
-                e.channel.onmessage = function(e) {
-                    this.conn.recv(e.data);
-                }
-                this.conn.state = 'ready';
-                pim_share_info(); // TODO: this probably shouldn't be here
-            }
+            this.reset_rtc();
+            var rtc = this.rtc;
             this.rtc.onnegotiationneeded = function() {
                 pim_log('Creating offer');
                 this.createOffer().then(function(offer) {
@@ -76,6 +53,34 @@ Connection.prototype.connect = function() {
                 this.conn.recv(e.data);
             }
             break;
+    }
+}
+Connection.prototype.reset_rtc = function() {
+    this.state = 'waiting';
+    var rtc = this.rtc = new RTCPeerConnection(pim_rtc_conf);
+    this.rtc_send = this.rtc.createDataChannel('data');
+    this.rtc.conn = this;
+    this.rtc.oniceconnectionstatechange = function() {
+        if(this.iceConnectionState=='disconnected') {
+            this.conn.state = 'disconnected';
+            pim_log('Disconnected from peer');
+        }
+    }
+    this.rtc.onicecandidate = function(e) {
+        if(e.candidate) {
+            pim_log('Sending ICE candidate: '+e.candidate.candidate);
+            pim_send_peer_msg({type:'ice-candidate',to:this.conn.public_pem,candidate:e.candidate});
+        }
+    }
+    this.rtc.ondatachannel = function(e) {
+        pim_log("Connection success!");
+        this.conn.rtc_recv = e.channel;
+        this.conn.rtc_recv.conn = this.conn;
+        e.channel.onmessage = function(e) {
+            this.conn.recv(e.data);
+        }
+        this.conn.state = 'ready';
+        pim_share_info(); // TODO: this probably shouldn't be here
     }
 }
 Connection.prototype.send = function(obj) {
@@ -149,7 +154,7 @@ function pim_connect_from(public_pem,remote_desc) {
         connection.rtc.setRemoteDescription(remote_desc);
     } else { // It's an offer
         // TODO: Should ask if user wants to connect in a nice way
-        connection.connect();
+        connection.reset_rtc();
         connection.rtc.setRemoteDescription(remote_desc).then(function() {
             return connection.rtc.createAnswer();
         }).then(function(answer) {
