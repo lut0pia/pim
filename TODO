@@ -1,4 +1,6 @@
 - Maybe a UI that doesn't suck ass
 - Delta compression for shared info
-- Handle peer disconnection and reconnection
 - Allow peer-to-peer signaling (with more priority than servers)
+- Opt-in browser notifications
+- Display current connections in friendly UI (for debug and transparency)
+- Group chats
