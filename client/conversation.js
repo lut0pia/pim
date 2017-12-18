@@ -54,14 +54,25 @@ Conversation.prototype.onmessage = function(text,incoming) {
     pim_peer_history(this.public_pem).push(msg);
 }
 Conversation.prototype.add_message = function(msg) {
+    var imgs = [];
+    var html = pim_html_entities(msg.text)
+        .replace(/(https?|ftp|dat):\/\/\S+\.(jpe?g|gif|png|webp)(\?\S*)?/gi,function(img){imgs.push(img);return '';})
+        .replace(/(https?|ftp|dat):\/\/\S+/gi,'<a href="$&" target="_blank" rel="noopener">$&</a>')
+        .trim();
     // TODO: display time too
     var message_el = document.createElement('message');
-    message_el.innerHTML = pim_html_entities(msg.text);
+    message_el.innerHTML = html;
     message_el.className = msg.incoming?'from':'to';
-    message_el.title = new Date(msg.time).toLocaleString()
+    message_el.title = new Date(msg.time).toLocaleString();
+    imgs.forEach(function(src) {
+        var img_el = document.createElement('img');
+        img_el.src = src;
+        img_el.setAttribute('onclick',"window.open(src,'_blank');"); // Ugly but more info for CSS
+        message_el.appendChild(img_el);
+    });
     // TODO: handle urls, images, videos, emojis
     this.messages_el.appendChild(message_el);
-    this.messages_el.scrollBy(0,128); // Fucks up with loadable content sometimes
+    this.messages_el.scrollBy(0,1024); // Fucks up with loadable content sometimes
 }
 
 

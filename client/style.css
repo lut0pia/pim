@@ -1,6 +1,9 @@
 body {
     font-family: 'Noto Sans', sans-serif;
 }
+[onclick] {
+    cursor: pointer;
+}
 
 connection {
     display: inline-block;
@@ -58,4 +61,7 @@ messages message.from {
 messages message.to {
     text-align: right;
     background: linear-gradient(to right, #f6f8fa, white);
+}
+messages message img {
+    max-width: 300px;
 }
