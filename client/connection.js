@@ -142,17 +142,17 @@ function pim_recv_peer_msg(server,msg) {
             break;
     }
 }
-function pim_connect_from(public_pem,remoteDesc) {
-    pim_log('Remote offer received');
-    var connection = pim_connections[public_pem]
-    if(connection) { // Already trying to connect to that user
-        pim_log('Was already establishing contact');
-        connection.rtc.setRemoteDescription(remoteDesc); // TODO: Check it's a peer connection
-    } else { // Unexpected connection attempt
+function pim_connect_from(public_pem,remote_desc) {
+    pim_log('Remote '+remote_desc.type+' received');
+    var connection = pim_connection(public_pem); 
+    if(remote_desc.type=='answer') { // It's an answer to earlier offer
+        connection.rtc.setRemoteDescription(remote_desc);
+    } else { // It's an offer
         // TODO: Should ask if user wants to connect in a nice way
-        var connection = pim_connection(public_pem); 
-        connection.rtc.setRemoteDescription(remoteDesc);
-        connection.rtc.createAnswer().then(function(answer) {
+        connection.connect();
+        connection.rtc.setRemoteDescription(remote_desc).then(function() {
+            return connection.rtc.createAnswer();
+        }).then(function(answer) {
             pim_log('Local answer created');
             return connection.rtc.setLocalDescription(answer);
         }).then(function() {
