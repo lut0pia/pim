@@ -2,9 +2,6 @@ function Conversation(public_pem) {
     var conv = this;
     this.public_pem = pim_normalize_public_pem(public_pem);
     this.connection = pim_connection(this.public_pem);
-    this.connection.handlers.chat = function(conn,msg) {
-        conv.onmessage(msg.text,true);
-    }
     this.update_interval = setInterval(function() {
         conv.conversation_el.classList.toggle('ready',conv.connection.state=='ready');
     },1000);
@@ -77,7 +74,7 @@ Conversation.prototype.add_message = function(msg) {
 
 
 var pim_conversations = {};
-function pim_start_conversation(public_pem) {
+function pim_conversation(public_pem) {
     public_pem = pim_normalize_public_pem(public_pem);
     if(!public_pem) {
         pim_log('Not a public key');
@@ -88,8 +85,7 @@ function pim_start_conversation(public_pem) {
         return;
     }
     if(pim_conversations[public_pem]) {
-        pim_log('You are already conversing with that user');
-        return;
+        return pim_conversations[public_pem];
     }
     return pim_conversations[public_pem] = new Conversation(public_pem);
 }

@@ -43,7 +43,7 @@ Connection.prototype.handlers.shared = function(conn,msg) {
     }
 }
 Connection.prototype.handlers.chat = function(conn,msg) {
-    var conv = pim_start_conversation(conn.public_pem);
+    var conv = pim_conversation(conn.public_pem);
     conv.onmessage(msg.text,true);
 }
 
@@ -78,7 +78,7 @@ window.addEventListener('load',function() {
         known_peer_el.type = 'button';
         known_peer_el.value = pim_peer_shared(public_pem).name || '...';
         known_peer_el.onclick = function() {
-            pim_start_conversation(public_pem);
+            pim_conversation(public_pem);
         };
         known_peers_el.appendChild(known_peer_el);
     }
@@ -94,7 +94,7 @@ window.addEventListener('load',function() {
     });
     document.getElementById('connect_button').addEventListener('click',function() {
         var input_el = document.getElementById('public_key_field');
-        pim_start_conversation(input_el.value);
+        pim_conversation(input_el.value);
         input_el.value = '';
     });
     document.getElementById('my_name').addEventListener('keyup',function() {
