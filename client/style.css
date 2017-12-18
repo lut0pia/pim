@@ -1,3 +1,7 @@
+body {
+    font-family: 'Noto Sans', sans-serif;
+}
+
 connection {
     display: inline-block;
     padding: 2px;
