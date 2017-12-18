@@ -73,7 +73,7 @@ window.addEventListener('load',function() {
     document.getElementById('my_public_key').value = pim_account.public_pem;
     document.getElementById('my_name').value = pim_account.shared.name || 'Unknown';
     var known_peers_el = document.getElementById('known_peers');
-    for(var public_pem in pim_account.peers) {
+    for(let public_pem in pim_account.peers) {
         var known_peer_el = document.createElement('input');
         known_peer_el.type = 'button';
         known_peer_el.value = pim_peer_shared(public_pem).name || '...';
