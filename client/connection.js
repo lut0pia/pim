@@ -164,6 +164,10 @@ function pim_recv_peer_msg(server,msg) {
 function pim_connect_from(public_pem,remote_desc) {
     pim_log('Remote '+remote_desc.type+' received');
     var connection = pim_connection(public_pem); 
+    if(connection.state=='ready') {
+        pim_log('Already connected');
+        return;
+    }
     if(remote_desc.type=='answer') { // It's an answer to earlier offer
         connection.rtc.setRemoteDescription(remote_desc);
     } else { // It's an offer
