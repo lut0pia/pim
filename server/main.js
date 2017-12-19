@@ -49,11 +49,11 @@ wssServer.on('request', function(request) {
                     console.log('Unauthenticated: '+connection.remoteAddress);
                 }
                 break;
-            case 'peer-msg': // Client wants to pass message to other client
+            case 'relay-msg': // Client wants to pass message to other client
                 if(connection.authenticated) { // Only authenticated clients can ask about other clients
                     var other_connection = clients[msg.msg.to];
                     if(other_connection) {
-                        other_connection.sendObject({type:'peer-msg',signature:msg.signature,msg:msg.msg})
+                        other_connection.sendObject({type:'relayed-msg',signature:msg.signature,msg:msg.msg})
                         console.log('Passing message');
                     } else {
                         console.log('Client asked for unknown other client');

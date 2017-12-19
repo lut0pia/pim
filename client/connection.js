@@ -33,7 +33,7 @@ Connection.prototype.connect = function() {
                 }).then(function() {
                     pim_log('Sending offer');
                     var desc = rtc.localDescription;
-                    pim_send_peer_msg({type:'connect-from',to:rtc.conn.public_pem,desc:desc});
+                    pim_send_relayed_msg({type:'connect-from',to:rtc.conn.public_pem,desc:desc});
                 }).catch(pim_log);
             }
             break;
@@ -73,7 +73,7 @@ Connection.prototype.reset_rtc = function() {
     this.rtc.onicecandidate = function(e) {
         if(e.candidate) {
             pim_log('Sending ICE candidate: '+e.candidate.candidate);
-            pim_send_peer_msg({type:'ice-candidate',to:this.conn.public_pem,candidate:e.candidate});
+            pim_send_relayed_msg({type:'ice-candidate',to:this.conn.public_pem,candidate:e.candidate});
         }
     }
     this.rtc.ondatachannel = function(e) {
@@ -135,23 +135,23 @@ Connection.prototype.handlers.authenticated = function(conn,msg) {
     conn.authenticated = true;
     pim_log('Authenticated to: '+conn.url);
 }
-var pim_recvd_peer_msgs = {}; // Hashes of relayed messages received
-Connection.prototype.handlers['peer-msg'] = function(conn,msg) {
+var pim_recvd_relayed_msgs = {}; // Hashes of relayed messages received
+Connection.prototype.handlers['relayed-msg'] = function(conn,msg) {
     var md = forge.md.sha1.create();
     md.update(JSON.stringify(msg.msg), 'utf8');
     var hash = md.digest().toHex();
-    if(!pim_recvd_peer_msgs[hash]) { // Ensure we don't receive the same message twice
-        pim_recvd_peer_msgs[hash] = true;
+    if(!pim_recvd_relayed_msgs[hash]) { // Ensure we don't receive the same message twice
+        pim_recvd_relayed_msgs[hash] = true;
         var publicKey = forge.pki.publicKeyFromPem(msg.msg.from);
         if(publicKey.verify(md.digest().bytes(), msg.signature)) { // The message comes from who it says it does
-            pim_recv_peer_msg(conn,msg.msg);
+            pim_recv_relayed_msg(conn,msg.msg);
         } else {
             pim_log('Received falsified peer message from: '+conn.url);
         }
     }
 }
 
-function pim_recv_peer_msg(server,msg) {
+function pim_recv_relayed_msg(server,msg) {
     switch(msg.type) {
         case 'connect-from':
             pim_connect_from(msg.from,msg.desc);
@@ -180,7 +180,7 @@ function pim_connect_from(public_pem,remote_desc) {
             return connection.rtc.setLocalDescription(answer);
         }).then(function() {
             var desc = connection.rtc.localDescription;
-            pim_send_peer_msg({type:'connect-from',to:public_pem,desc:desc});
+            pim_send_relayed_msg({type:'connect-from',to:public_pem,desc:desc});
         });
     }
 }
@@ -193,14 +193,14 @@ function pim_ice_candidate(public_pem,candidate) {
         pim_log('Received ICE candidate for unwanted connection');
     }
 }
-function pim_send_peer_msg(msg) {
+function pim_send_relayed_msg(msg) {
     msg.from = pim_account.public_pem;
     var publicKey = forge.pki.publicKeyFromPem(msg.to);
     var md = forge.md.sha1.create();
     md.update(JSON.stringify(msg),'utf8');
     // TODO: only broadcast to small reliable subset for efficiency
     pim_server_broadcast({
-        type:'peer-msg',
+        type:'relay-msg',
         msg:msg,
         signature:pim_private_key.sign(md)
     });
