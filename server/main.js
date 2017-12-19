@@ -11,8 +11,9 @@ var rsa = forge.pki.rsa;
 var clients = {};
 
 var httpsServer = https.createServer({
-    key: fs.readFileSync('key.pem'),
-    cert: fs.readFileSync('cert.pem')
+    // TODO: These values should change for another server, add a conf file?
+    key: fs.readFileSync('/etc/letsencrypt/live/pim.luciencatonnet.com/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/pim.luciencatonnet.com/cert.pem')
 });
 httpsServer.listen(18765);
 
