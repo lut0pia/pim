@@ -91,6 +91,7 @@ window.addEventListener('load',function() {
             pim_conversation(public_pem);
         };
         known_peers_el.appendChild(known_peer_el);
+        pim_connection(public_pem);
     }
 
     document.getElementById('reset_button').addEventListener('click',function() {
