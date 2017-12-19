@@ -1,5 +1,4 @@
 - Maybe a UI that doesn't suck ass
 - Delta compression for shared info
 - Allow peer-to-peer signaling (with more priority than servers)
-- Opt-in browser notifications
 - Group chats
