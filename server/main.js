@@ -2,20 +2,24 @@
 
 process.title = 'pim-server';
 
-var webSocketServer = require('websocket').server;
-var http = require('http');
+var fs = require('fs');
+var WebSocketServer = require('websocket').server;
+var https = require('https');
 var forge = require('node-forge');
 var rsa = forge.pki.rsa;
 
 var clients = {};
 
-var httpServer = http.createServer(function(request, response) {});
-httpServer.listen(18765);
-
-var wsServer = new webSocketServer({
-    httpServer: httpServer
+var httpsServer = https.createServer({
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
 });
-wsServer.on('request', function(request) {
+httpsServer.listen(80);
+
+var wssServer = new WebSocketServer({
+    httpServer: httpsServer
+});
+wssServer.on('request', function(request) {
     console.log('New connection: '+request.remoteAddress);
     var connection = request.accept(null, request.origin);
     connection.sendObject = function(obj) { this.send(JSON.stringify(obj)); }
