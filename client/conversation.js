@@ -70,6 +70,12 @@ Conversation.prototype.add_message = function(msg) {
     // TODO: handle urls, images, videos, emojis
     this.messages_el.appendChild(message_el);
     this.messages_el.scrollBy(0,1024); // Fucks up with loadable content sometimes
+
+    if(msg.incoming) {
+        // Display notification
+        var username = pim_peer_shared(this.public_pem).name || 'Someone';
+        pim_notification(username+' has sent you a message!','msg');
+    }
 }
 
 
