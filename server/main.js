@@ -14,7 +14,7 @@ var httpsServer = https.createServer({
     key: fs.readFileSync('key.pem'),
     cert: fs.readFileSync('cert.pem')
 });
-httpsServer.listen(80);
+httpsServer.listen(18765);
 
 var wssServer = new WebSocketServer({
     httpServer: httpsServer

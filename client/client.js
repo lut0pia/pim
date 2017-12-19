@@ -76,8 +76,8 @@ window.addEventListener('load',function() {
     }
 
     // Some static addresses as kickstarter
-    pim_connection('wss://127.0.0.1:80'); // For debugging purposes
-    pim_connection('wss://pim.luciencatonnet.com:80');
+    pim_connection('wss://127.0.0.1:18765'); // For debugging purposes
+    pim_connection('wss://pim.luciencatonnet.com:18765');
     pim_rtc_conf.iceServers.push({url:'stun:pim.luciencatonnet.com'});
     
     document.getElementById('my_public_key').value = pim_account.public_pem;
