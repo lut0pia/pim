@@ -177,6 +177,7 @@ function pim_recv_relayed_msg(server,msg) {
     if(conn.state=='ready') {
         return; // Don't fix it if it ain't broke
     }
+    conn.retry_iterator = -1; // Delay retry
     var signal = msg.signal;
     var remote_desc = signal.desc;
     pim_log('Remote '+remote_desc.type+' received');
