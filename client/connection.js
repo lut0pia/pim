@@ -88,9 +88,11 @@ Connection.prototype.reset_rtc = function() {
     };
 }
 Connection.prototype.conditional_send_signal = function() {
-    if(this.rtc_signal.desc && this.rtc_signal.ice_candidates.indexOf(null)>0) {
+    if(!this.rtc_signal.sent && this.rtc_signal.desc
+    && this.rtc_signal.ice_candidates.indexOf(null)>0) {
         pim_log('Sending '+this.rtc_signal.desc.type+' signal');
         this.send_relayed({type:'signal',signal:this.rtc_signal});
+        this.rtc_signal.sent = true; // Avoid resending
     }
 }
 Connection.prototype.friendly_name = function() {
