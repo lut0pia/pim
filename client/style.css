@@ -1,4 +1,4 @@
-body {
+body, input {
     font-family: 'Noto Sans', sans-serif;
 }
 [onclick] {
