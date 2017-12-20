@@ -53,7 +53,7 @@ Conversation.prototype.onmessage = function(text,incoming) {
     if(msg.incoming) {
         // Display notification
         var username = pim_peer_shared(this.public_pem).name || 'Someone';
-        pim_notification(username+' has sent you a message!','msg');
+        pim_notification('New message!',username+' says: '+msg.text);
     }
 }
 Conversation.prototype.add_message = function(msg) {

@@ -56,13 +56,16 @@ function pim_normalize_public_pem(public_pem) {
 function pim_html_entities(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-function pim_notification(text,tag) {
+function pim_notification(title,body) {
     if(typeof Notification != 'undefined') {
         if(Notification.permission=='default') {
             Notification.requestPermission();
         }
         else if(Notification.permission=='granted') {
-            new Notification(text,{tag:tag});
+            var notification = new Notification(title,{body:body,tag:title});
+            setTimeout(function() {
+                notification.close();
+            },2000);
         }
     }
 }
