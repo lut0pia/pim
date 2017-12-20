@@ -2,5 +2,3 @@
 - Delta compression for shared info
 - Allow peer-to-peer signaling (with more priority than servers)
 - Group chats
-- Don't use ICE candidate after successful connection (or find good way to differentiate between wanted and unwanted)
-- Gather all ICE candidates before sending them (maybe even bundle them with the offer/answer?)
