@@ -31,9 +31,8 @@ Connection.prototype.connect = function() {
                     pim_log('Local offer created');
                     return rtc.setLocalDescription(offer);
                 }).then(function() {
-                    pim_log('Sending offer');
-                    var desc = rtc.localDescription;
-                    pim_send_relayed_msg({type:'connect-from',to:rtc.conn.public_pem,desc:desc});
+                    rtc.conn.rtc_signal.desc = rtc.localDescription;
+                    rtc.conn.conditional_send_signal();
                 }).catch(pim_log);
             }
             break;
@@ -71,10 +70,8 @@ Connection.prototype.reset_rtc = function() {
         }
     }
     this.rtc.onicecandidate = function(e) {
-        if(e.candidate) {
-            pim_log('Sending ICE candidate: '+e.candidate.candidate);
-            pim_send_relayed_msg({type:'ice-candidate',to:this.conn.public_pem,candidate:e.candidate});
-        }
+        this.conn.rtc_signal.ice_candidates.push(e.candidate);
+        this.conn.conditional_send_signal();
     }
     this.rtc.ondatachannel = function(e) {
         pim_log("Connection success!");
@@ -85,6 +82,15 @@ Connection.prototype.reset_rtc = function() {
         }
         this.conn.state = 'ready';
         pim_share_info(); // TODO: this probably shouldn't be here
+    }
+    this.rtc_signal = {
+        ice_candidates:[]
+    };
+}
+Connection.prototype.conditional_send_signal = function() {
+    if(this.rtc_signal.desc && this.rtc_signal.ice_candidates.indexOf(null)>0) {
+        pim_log('Sending '+this.rtc_signal.desc.type+' signal');
+        this.send_relayed({type:'signal',signal:this.rtc_signal});
     }
 }
 Connection.prototype.friendly_name = function() {
@@ -118,6 +124,18 @@ Connection.prototype.recv = function(msg) {
         pim_log('Unhandled message type: '+msg.type)
     }
 }
+Connection.prototype.send_relayed = function(msg) {
+    msg.from = pim_account.public_pem;
+    msg.to = this.public_pem;
+    var md = forge.md.sha1.create();
+    md.update(JSON.stringify(msg),'utf8');
+    // TODO: only broadcast to small reliable subset for efficiency
+    pim_server_broadcast({
+        type:'relay-msg',
+        msg:msg,
+        signature:pim_private_key.sign(md)
+    });
+}
 Connection.prototype.handlers = {}
 Connection.prototype.handlers['prove-auth'] = function(conn,msg) {
     // Server has sent us an encrypted message we have to decypher to prove our identity
@@ -142,8 +160,8 @@ Connection.prototype.handlers['relayed-msg'] = function(conn,msg) {
     var hash = md.digest().toHex();
     if(!pim_recvd_relayed_msgs[hash]) { // Ensure we don't receive the same message twice
         pim_recvd_relayed_msgs[hash] = true;
-        var publicKey = forge.pki.publicKeyFromPem(msg.msg.from);
-        if(publicKey.verify(md.digest().bytes(), msg.signature)) { // The message comes from who it says it does
+        var public_key = forge.pki.publicKeyFromPem(msg.msg.from);
+        if(public_key.verify(md.digest().bytes(), msg.signature)) { // The message comes from who it says it does
             pim_recv_relayed_msg(conn,msg.msg);
         } else {
             pim_log('Received falsified peer message from: '+conn.url);
@@ -152,58 +170,37 @@ Connection.prototype.handlers['relayed-msg'] = function(conn,msg) {
 }
 
 function pim_recv_relayed_msg(server,msg) {
-    switch(msg.type) {
-        case 'connect-from':
-            pim_connect_from(msg.from,msg.desc);
-            break;
-        case 'ice-candidate':
-            pim_ice_candidate(msg.from,msg.candidate);
-            break;
+    if(msg.type!='signal') {
+        return; // Could we have any other type of relayed message?
     }
-}
-function pim_connect_from(public_pem,remote_desc) {
+    var conn = pim_connection(msg.from);
+    if(conn.state=='ready') {
+        return; // Don't fix it if it ain't broke
+    }
+    var signal = msg.signal;
+    var remote_desc = signal.desc;
     pim_log('Remote '+remote_desc.type+' received');
-    var connection = pim_connection(public_pem); 
-    if(connection.state=='ready') {
-        pim_log('Already connected');
-        return;
-    }
+    
     if(remote_desc.type=='answer') { // It's an answer to earlier offer
-        connection.rtc.setRemoteDescription(remote_desc);
+        conn.rtc.setRemoteDescription(remote_desc);
     } else { // It's an offer
         // TODO: Should ask if user wants to connect in a nice way
-        connection.reset_rtc();
-        connection.rtc.setRemoteDescription(remote_desc).then(function() {
-            return connection.rtc.createAnswer();
+        conn.reset_rtc();
+        conn.rtc.setRemoteDescription(remote_desc).then(function() {
+            return conn.rtc.createAnswer();
         }).then(function(answer) {
             pim_log('Local answer created');
-            return connection.rtc.setLocalDescription(answer);
+            return conn.rtc.setLocalDescription(answer);
         }).then(function() {
-            var desc = connection.rtc.localDescription;
-            pim_send_relayed_msg({type:'connect-from',to:public_pem,desc:desc});
+            signal.ice_candidates.forEach(function(candidate) {
+                if(candidate) {
+                    conn.rtc.addIceCandidate(new RTCIceCandidate(candidate));
+                }
+            });
+            conn.rtc_signal.desc = conn.rtc.localDescription;
+            conn.conditional_send_signal();
         });
     }
-}
-function pim_ice_candidate(public_pem,candidate) {
-    var connection = pim_connections[public_pem];
-    if(connection) {
-        pim_log('Received ICE candidate: '+candidate.candidate);
-        connection.rtc.addIceCandidate(new RTCIceCandidate(candidate)); // TODO: more checks
-    } else {
-        pim_log('Received ICE candidate for unwanted connection');
-    }
-}
-function pim_send_relayed_msg(msg) {
-    msg.from = pim_account.public_pem;
-    var publicKey = forge.pki.publicKeyFromPem(msg.to);
-    var md = forge.md.sha1.create();
-    md.update(JSON.stringify(msg),'utf8');
-    // TODO: only broadcast to small reliable subset for efficiency
-    pim_server_broadcast({
-        type:'relay-msg',
-        msg:msg,
-        signature:pim_private_key.sign(md)
-    });
 }
 
 var pim_connections = {};
