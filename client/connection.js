@@ -183,9 +183,17 @@ function pim_recv_relayed_msg(server,msg) {
     var signal = msg.signal;
     var remote_desc = signal.desc;
     pim_log('Received '+remote_desc.type+' signal');
+    var apply_ice_candidates = function() {
+        signal.ice_candidates.forEach(function(candidate) {
+            if(candidate) {
+                conn.rtc.addIceCandidate(new RTCIceCandidate(candidate));
+            }
+        });
+    }
     
     if(remote_desc.type=='answer') { // It's an answer to earlier offer
-        conn.rtc.setRemoteDescription(remote_desc);
+        conn.rtc.setRemoteDescription(remote_desc)
+        .then(apply_ice_candidates);
     } else { // It's an offer
         // TODO: Should ask if user wants to connect in a nice way
         conn.reset_rtc();
@@ -194,12 +202,8 @@ function pim_recv_relayed_msg(server,msg) {
         }).then(function(answer) {
             pim_log('Local answer created');
             return conn.rtc.setLocalDescription(answer);
-        }).then(function() {
-            signal.ice_candidates.forEach(function(candidate) {
-                if(candidate) {
-                    conn.rtc.addIceCandidate(new RTCIceCandidate(candidate));
-                }
-            });
+        }).then(apply_ice_candidates)
+        .then(function() {
             conn.rtc_signal.desc = conn.rtc.localDescription;
             conn.conditional_send_signal();
         });
