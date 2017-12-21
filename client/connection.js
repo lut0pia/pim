@@ -182,7 +182,7 @@ function pim_recv_relayed_msg(server,msg) {
     conn.retry_iterator = -1; // Delay retry
     var signal = msg.signal;
     var remote_desc = signal.desc;
-    pim_log('Remote '+remote_desc.type+' received');
+    pim_log('Received '+remote_desc.type+' signal');
     
     if(remote_desc.type=='answer') { // It's an answer to earlier offer
         conn.rtc.setRemoteDescription(remote_desc);
