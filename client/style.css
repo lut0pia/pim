@@ -48,19 +48,22 @@ messages {
     width: 400px;
     height: 500px;
     overflow-y: scroll;
-    background-color: #f6f8fa;
+    overflow-x: hidden;
 }
 messages message {
     display: block;
-    padding: 10px;
+    padding: 4px;
+    margin: 2px;
+    word-wrap: break-word;
 }
 messages message.from {
-    text-align: left;
-    background: linear-gradient(to left, #f6f8fa, white);
+    border-left: 2px solid lightgray;
+    padding-left: 2px;
 }
 messages message.to {
-    text-align: right;
-    background: linear-gradient(to right, #f6f8fa, white);
+    border-right: 2px solid lightgray;
+    padding-right: 2px;
+    background-color: rgb(249, 252, 255);
 }
 messages message img {
     max-width: 300px;
