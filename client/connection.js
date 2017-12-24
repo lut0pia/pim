@@ -151,7 +151,7 @@ Connection.prototype.handlers['prove-auth'] = function(conn,msg) {
     }
 }
 Connection.prototype.handlers.authenticated = function(conn,msg) {
-    // Server confirmed that we're not authenticated
+    // Server confirmed that we're now authenticated
     conn.authenticated = true;
     pim_log('Authenticated to: '+conn.url);
 }
