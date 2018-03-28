@@ -1,5 +1,7 @@
 # Ensure this script is regularly run
-echo "* * * * * "$USER" cd "`pwd`" && "$0 > /etc/cron.d/pim-ka
+if test -n "$USER" ; then
+	echo "* * * * * "$USER" cd "`pwd`" && "$0 > /etc/cron.d/pim-ka
+fi
 
 # Remember credentials for future automatic runs
 git config credential.helper store
