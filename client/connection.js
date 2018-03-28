@@ -236,7 +236,7 @@ function pim_peer_broadcast(obj) {
 }
 function pim_server_broadcast(obj) {
     pim_broadcast(obj,function(conn) {
-        return conn.type=='server';
+        return conn.type=='server' && conn.authenticated;
     });
 }
 
