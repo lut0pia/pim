@@ -155,6 +155,19 @@ Connection.prototype.handlers.authenticated = function(conn,msg) {
     conn.authenticated = true;
     pim_log('Authenticated to: '+conn.url);
 }
+Connection.prototype.handlers['relay-msg'] = function(conn,msg) {
+    if(msg.msg.to in pim_connections) {
+        var other_conn = pim_connection(msg.msg.to);
+        if(other_conn.state=='ready') {
+            other_conn.send({type:'relayed-msg',signature:msg.signature,msg:msg.msg})
+            pim_log('Passing message from '+conn.friendly_name()+' to '+conn.friendly_name());
+        } else {
+            pim_log('Peer asked for disconnected other peer');
+        }
+    } else {
+        pim_log('Peer asked for unknown other peer');
+    }
+}
 var pim_recvd_relayed_msgs = {}; // Hashes of relayed messages received
 Connection.prototype.handlers['relayed-msg'] = function(conn,msg) {
     var md = forge.md.sha1.create();
