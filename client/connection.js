@@ -132,7 +132,7 @@ Connection.prototype.send_relayed = function(msg) {
     var md = forge.md.sha1.create();
     md.update(JSON.stringify(msg),'utf8');
     // TODO: only broadcast to small reliable subset for efficiency
-    pim_server_broadcast({
+    pim_relay_broadcast({
         type:'relay-msg',
         msg:msg,
         signature:pim_private_key.sign(md)
@@ -241,6 +241,11 @@ function pim_broadcast(obj,cond) {
             connection.send(obj);
         }
     }
+}
+function pim_relay_broadcast(obj) {
+    pim_broadcast(obj,function(conn) {
+        return conn.type=='peer' || conn.type=='server' && conn.authenticated;
+    });
 }
 function pim_peer_broadcast(obj) {
     pim_broadcast(obj,function(conn) {
