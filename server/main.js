@@ -16,8 +16,8 @@ var clients = {};
 
 var httpsServer = https.createServer({
     // TODO: These values should change for another server, add a conf file?
-    key: fs.readFileSync('/etc/letsencrypt/live/pim.luciencatonnet.com/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/pim.luciencatonnet.com/cert.pem')
+    key: fs.readFileSync('/etc/letsencrypt/live/pim.lucien.cat/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/pim.lucien.cat/cert.pem')
 });
 httpsServer.listen(18765);
 
