@@ -10,7 +10,7 @@
 ## State
 
 This project is in a very early stage, most things can and *will* change, some may break and you may lose data (pim-related, e.g. conversations). It's not ready for simple casual use, but if you're willing to try things and maybe contribute, hop on!
-If you want to test the program in its current state, there is a server setup at [pim.luciencatonnet.com](https://pim.luciencatonnet.com).
+If you want to test the program in its current state, there is a server setup at [pim.lucien.cat](https://pim.lucien.cat).
 
 ## How it works
 
