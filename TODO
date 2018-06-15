@@ -1,4 +1,17 @@
-- Maybe a UI that doesn't suck ass
+UI/UX:
+- Have an actual structure 
+- Conversations in panes
+- Have a landing page if not logged (with tutorial)
+- Multilingual support
+- Allow refusing conversations
+- Support sending raw image data (e.g. from screenshots)
+Client:
 - Delta compression for shared info
 - Allow peer-to-peer signaling (with more priority than servers)
 - Group chats
+- Use login/pass combination to generate private then public key (allows authentification on multiple devices)
+- Implement a DHT (maybe Kademlia), it should be persistent-storage-oriented
+- Store user information as encrypted blob in DHT (allows fetching user information on multiple devices)
+Server:
+- Server should also serve the client files (avoid http server setup for server creators)
+- Server setup script could deal with letsencrypt configuration
