@@ -79,7 +79,8 @@ window.addEventListener('load',function() {
     }
 
     // Some static addresses as kickstarter
-    pim_connection('wss://127.0.0.1:18765'); // For debugging purposes
+    pim_connection('ws://127.0.0.1:18765');
+    pim_connection('wss://127.0.0.1:18765');
     pim_connection('wss://pim.lucien.cat:18765');
     pim_rtc_conf.iceServers.push({url:'stun:pim.lucien.cat'});
     
