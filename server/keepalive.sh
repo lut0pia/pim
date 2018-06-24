@@ -25,5 +25,5 @@ if test -z "$pid" || test -z "$up_to_date" ; then
 		kill $pid
 	fi
 	echo "Starting new server process"
-	nodejs main.js >> log.txt&
+	nodejs server.js >> log.txt&
 fi
